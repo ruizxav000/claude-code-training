@@ -169,7 +169,7 @@ export function IssueCardDialog({
                     if (merchant) setCurrency(merchant.currency)
                   }}
                 >
-                  <SelectTrigger className="mt-1 py-1.5">
+                  <SelectTrigger className="mt-1 py-1.5" aria-label="Merchant">
                     <SelectValue placeholder="Select a merchant" />
                   </SelectTrigger>
                   <SelectContent>
@@ -207,7 +207,7 @@ export function IssueCardDialog({
                     value={currency}
                     onValueChange={(value) => setCurrency(value as Currency)}
                   >
-                    <SelectTrigger className="mt-1 py-1.5">
+                    <SelectTrigger className="mt-1 py-1.5" aria-label="Currency">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
