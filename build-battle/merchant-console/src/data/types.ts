@@ -11,6 +11,8 @@ export type DisputeStatus = "needs_response" | "under_review" | "won" | "lost"
 
 export type PayoutStatus = "paid" | "in_transit" | "pending"
 
+export type CardStatus = "active" | "frozen" | "cancelled"
+
 export interface Merchant {
   id: string
   name: string
@@ -69,6 +71,23 @@ export interface Payout {
   currency: Currency
   status: PayoutStatus
   paymentIds: string[]
+}
+
+export interface Card {
+  id: string
+  nickname: string
+  merchantId: string
+  /** Never the full number. Set once, at creation, from the generated number. */
+  last4: string
+  /** Opaque reference to the one-time generated number. Not the number itself. */
+  numberRef: string
+  /** Integer minor units. Never a float. */
+  spendLimit: number
+  currency: Currency
+  status: CardStatus
+  /** Sum of captured spend against this card, integer minor units. */
+  spend: number
+  createdAt: string
 }
 
 export interface PaymentFilters {
