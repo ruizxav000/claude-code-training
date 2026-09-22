@@ -26,7 +26,10 @@ Cards do not exist anywhere in this codebase yet.
 - `src/lib/money.ts` — `formatMoney`, `parseAmountToMinorUnits` already do everything the limit field needs.
 - `src/components/ui/payments/StatusBadge.tsx` — keyed by a `Record<AnyStatus, ...>` union; extending it for card status is smaller than a new badge component.
 - `src/app/siteConfig.ts` + `src/components/ui/navigation/AppSidebar.tsx` — nav is a `baseLinks` map plus a `navigation` array; `/cards` needs an entry in both.
-- `.claude/rules/cards.md` — already states the BIN, reveal-once, and state-machine rules; this spec doesn't invent anything beyond it.
+- `.claude/rules/cards.md` — already states the BIN, reveal-once, and state-machine rules; this spec doesn't invent anything beyond it. Quoting it directly rather than paraphrasing, so the source is checkable against the file itself: *"Test BIN only. Every generated number starts `4242` and carries a valid Luhn check digit... Status is a state machine. `active ⇄ frozen`, either to `cancelled`, and `cancelled` is terminal. Guard the transition on the server, not only in the UI."*
+- `.claude/rules/money.md` — quoted directly: *"Amounts are integer minor units. `$250.00` is `25000`... Never store, compare, or accumulate an amount as a float."*
+- `.claude/rules/api-routes.md` — quoted directly: *"Validate everything from the client against an allowlist before it reaches the store... Never return a full card number from a list or detail route."*
+- `docs/tickets/NWP-201.md` — the ticket itself, at the repository root under `docs/tickets/`, not `build-battle/`; read in full including its "Out of scope" list before writing this spec.
 
 ## Domain rules
 
@@ -62,7 +65,9 @@ Add a `Card` type and a `cards: Card[]` array to the existing in-memory store, g
 | `src/app/cards/page.tsx` | add | list route, mirrors `payments/page.tsx` |
 | `src/app/cards/issue-dialog.tsx` | add | `Drawer`-based issue form + one-time reveal screen |
 | `src/app/cards/[id]/page.tsx` | add | detail route: full record, spend vs. limit, freeze/unfreeze/cancel |
-| `src/app/cards/[id]/freeze-action.tsx` | add | client freeze/unfreeze/cancel control, no reload |
+| `src/app/cards/[id]/status-action.tsx` | add | client freeze/unfreeze/cancel control, no reload |
+| `src/app/cards/[id]/not-found.tsx` | add | written not-found state for an unknown card id, instead of the framework default |
+| `src/app/cards/list-status-action.tsx` | add | per-row freeze/unfreeze control on the `/cards` list, no reload |
 | `src/components/ui/payments/StatusBadge.tsx` | edit | extend `AnyStatus`/`LABELS`/`DOTS`/`VARIANTS` for `CardStatus` |
 | `src/app/siteConfig.ts` | edit | add `cards: "/cards"` to `baseLinks` |
 | `src/components/ui/navigation/AppSidebar.tsx` | edit | add "Cards" nav entry |
@@ -101,3 +106,13 @@ Add a `Card` type and a `cards: Card[]` array to the existing in-memory store, g
 ## Open questions
 
 - None — the ticket and `.claude/rules/cards.md` fully specify the rules needed to build this.
+
+## Addendum — hardening pass after initial review
+
+Added after the first PR review surfaced gaps against this plan and the ticket's own stretch list:
+
+- **Currency-vs-merchant check.** Not in the original plan. `src/data/merchants.ts` carries each merchant's `currency`; nothing on the cards path checked a card's currency against it. Fixed in `src/app/api/cards/route.ts` (server-side equality check) and `issue-dialog.tsx` (currency field now derived from the merchant and locked, not independently chosen).
+- **Merchant category lock.** Was listed under "Risks" as a stretch goal that might not land in the 45-minute window; it did not land in the original submission. Added: `CardCategory` in `src/data/types.ts`, chosen in the issue dialog, stored on `Card`, immutable after issue, shown on both `/cards` and `/cards/[id]`.
+- **Freeze/unfreeze from the list, not just the detail page.** The ticket's stretch item is explicitly "from the list without a full page reload" (`docs/tickets/NWP-201.md`); the original submission only put the control on `/cards/[id]`. Added a per-row control on `/cards` itself (`src/app/cards/list-status-action.tsx`), same guarded `PATCH`, same `router.refresh()` pattern, no navigation.
+- **Written not-found state for a card id.** The detail route called `notFound()` and fell through to the framework's generic 404. Added `src/app/cards/[id]/not-found.tsx` so a bad card id gets a written page consistent with the rest of the console's empty/error states, not a default.
+- **File-map correction.** This spec originally named the detail page's status control `freeze-action.tsx`; the file actually delivered is `status-action.tsx` (it also renders the cancel control, so "freeze-action" undersold what it does). Corrected above rather than left as drift between plan and code.

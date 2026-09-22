@@ -14,6 +14,7 @@ import { formatDate } from "@/lib/dates"
 import { formatMoney } from "@/lib/money"
 import Link from "next/link"
 import { IssueCardDialog } from "./issue-dialog"
+import { ListStatusAction } from "./list-status-action"
 
 export default function CardsPage() {
   const cards = allCards()
@@ -49,12 +50,13 @@ export default function CardsPage() {
               <TableHeaderCell className="text-right">Spend limit</TableHeaderCell>
               <TableHeaderCell>Status</TableHeaderCell>
               <TableHeaderCell>Created</TableHeaderCell>
+              <TableHeaderCell>Actions</TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {cards.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="py-16 text-center">
+                <TableCell colSpan={8} className="py-16 text-center">
                   <p className="font-medium text-gray-900 dark:text-gray-50">
                     No cards issued yet
                   </p>
@@ -88,6 +90,9 @@ export default function CardsPage() {
                     <StatusBadge status={card.status} />
                   </TableCell>
                   <TableCell>{formatDate(card.createdAt)}</TableCell>
+                  <TableCell>
+                    <ListStatusAction cardId={card.id} status={card.status} />
+                  </TableCell>
                 </TableRow>
               )
             })}
