@@ -34,7 +34,10 @@ export function IssueCardDialog({
 }) {
   const router = useRouter()
   const nicknameId = useId()
+  const merchantFieldId = useId()
   const limitId = useId()
+  const currencyId = useId()
+  const categoryId = useId()
 
   const [open, setOpen] = useState(false)
   const [nickname, setNickname] = useState("")
@@ -164,9 +167,12 @@ export function IssueCardDialog({
               </div>
 
               <div>
-                <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
+                <label
+                  htmlFor={merchantFieldId}
+                  className="text-sm font-medium text-gray-900 dark:text-gray-50"
+                >
                   Merchant
-                </span>
+                </label>
                 <Select
                   value={merchantId}
                   onValueChange={(value) => {
@@ -175,7 +181,10 @@ export function IssueCardDialog({
                     if (merchant) setCurrency(merchant.currency)
                   }}
                 >
-                  <SelectTrigger className="mt-1 py-1.5" aria-label="Merchant">
+                  <SelectTrigger
+                    id={merchantFieldId}
+                    className="mt-1 py-1.5"
+                  >
                     <SelectValue placeholder="Select a merchant" />
                   </SelectTrigger>
                   <SelectContent>
@@ -206,27 +215,37 @@ export function IssueCardDialog({
                   />
                 </div>
                 <div className="w-28">
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
+                  <label
+                    htmlFor={currencyId}
+                    className="text-sm font-medium text-gray-900 dark:text-gray-50"
+                  >
                     Currency
-                  </span>
+                  </label>
                   <Input
+                    id={currencyId}
                     className="mt-1"
                     value={currency}
                     disabled
-                    aria-label="Currency, set by the selected merchant"
+                    aria-describedby={`${currencyId}-hint`}
                   />
+                  <span id={`${currencyId}-hint`} className="sr-only">
+                    Set by the selected merchant
+                  </span>
                 </div>
               </div>
 
               <div>
-                <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
+                <label
+                  htmlFor={categoryId}
+                  className="text-sm font-medium text-gray-900 dark:text-gray-50"
+                >
                   Category
-                </span>
+                </label>
                 <Select
                   value={category}
                   onValueChange={(value) => setCategory(value as CardCategory)}
                 >
-                  <SelectTrigger className="mt-1 py-1.5" aria-label="Category">
+                  <SelectTrigger id={categoryId} className="mt-1 py-1.5">
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
