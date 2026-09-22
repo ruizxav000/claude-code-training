@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/Table"
 import { StatusBadge } from "@/components/ui/payments/StatusBadge"
-import { allCards } from "@/data/cardQueries"
+import { CARD_CATEGORY_LABELS, allCards } from "@/data/cardQueries"
 import { merchantById, merchants } from "@/data/merchants"
 import { formatDate } from "@/lib/dates"
 import { formatMoney } from "@/lib/money"
@@ -44,6 +44,7 @@ export default function CardsPage() {
             <TableRow>
               <TableHeaderCell>Card</TableHeaderCell>
               <TableHeaderCell>Merchant</TableHeaderCell>
+              <TableHeaderCell>Category</TableHeaderCell>
               <TableHeaderCell>Number</TableHeaderCell>
               <TableHeaderCell className="text-right">Spend limit</TableHeaderCell>
               <TableHeaderCell>Status</TableHeaderCell>
@@ -53,7 +54,7 @@ export default function CardsPage() {
           <TableBody>
             {cards.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="py-16 text-center">
+                <TableCell colSpan={7} className="py-16 text-center">
                   <p className="font-medium text-gray-900 dark:text-gray-50">
                     No cards issued yet
                   </p>
@@ -76,6 +77,7 @@ export default function CardsPage() {
                     </Link>
                   </TableCell>
                   <TableCell>{merchant?.name}</TableCell>
+                  <TableCell>{CARD_CATEGORY_LABELS[card.category]}</TableCell>
                   <TableCell className="font-mono text-sm text-gray-500">
                     •••• {card.last4}
                   </TableCell>

@@ -13,6 +13,8 @@ export type PayoutStatus = "paid" | "in_transit" | "pending"
 
 export type CardStatus = "active" | "frozen" | "cancelled"
 
+export type CardCategory = "vendor_subscription" | "ad_spend" | "contractor_tools"
+
 export interface Merchant {
   id: string
   name: string
@@ -84,6 +86,8 @@ export interface Card {
   /** Integer minor units. Never a float. */
   spendLimit: number
   currency: Currency
+  /** Chosen at issue time. Not editable after creation. */
+  category: CardCategory
   status: CardStatus
   /** Sum of captured spend against this card, integer minor units. */
   spend: number

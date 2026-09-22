@@ -1,7 +1,19 @@
 import { store } from "./store"
-import { Card, CardStatus, Currency } from "./types"
+import { Card, CardCategory, CardStatus, Currency } from "./types"
 
 const pad = (n: number, width = 6) => String(n).padStart(width, "0")
+
+export const CARD_CATEGORIES: readonly CardCategory[] = [
+  "vendor_subscription",
+  "ad_spend",
+  "contractor_tools",
+]
+
+export const CARD_CATEGORY_LABELS: Record<CardCategory, string> = {
+  vendor_subscription: "Vendor subscription",
+  ad_spend: "Ad spend",
+  contractor_tools: "Contractor tools",
+}
 
 export function allCards(): Card[] {
   return [...store.cards].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
@@ -16,6 +28,7 @@ export function createCard(input: {
   merchantId: string
   spendLimit: number
   currency: Currency
+  category: CardCategory
   last4: string
   numberRef: string
 }): Card {
@@ -27,6 +40,7 @@ export function createCard(input: {
     numberRef: input.numberRef,
     spendLimit: input.spendLimit,
     currency: input.currency,
+    category: input.category,
     status: "active",
     spend: 0,
     createdAt: new Date().toISOString(),

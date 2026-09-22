@@ -1,6 +1,6 @@
 import { Divider } from "@/components/Divider"
 import { StatusBadge } from "@/components/ui/payments/StatusBadge"
-import { cardById } from "@/data/cardQueries"
+import { CARD_CATEGORY_LABELS, cardById } from "@/data/cardQueries"
 import { merchantById } from "@/data/merchants"
 import { formatDate } from "@/lib/dates"
 import { formatMoney } from "@/lib/money"
@@ -49,6 +49,7 @@ export default async function CardDetail({
           {merchant && <span className="ml-2 text-gray-500">{merchant.country}</span>}
         </Field>
         <Field label="Currency">{card.currency}</Field>
+        <Field label="Category">{CARD_CATEGORY_LABELS[card.category]}</Field>
         <Field label="Spend limit">
           {formatMoney(card.spendLimit, card.currency)}
         </Field>

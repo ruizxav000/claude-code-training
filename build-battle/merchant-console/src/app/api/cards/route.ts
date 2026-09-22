@@ -1,4 +1,4 @@
-import { allCards, createCard } from "@/data/cardQueries"
+import { CARD_CATEGORIES, allCards, createCard } from "@/data/cardQueries"
 import { merchantById } from "@/data/merchants"
 import { Currency } from "@/data/types"
 import { generateCardNumber } from "@/lib/cardNumber"
@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
     typeof body.merchantId === "string" ? body.merchantId : ""
   const spendLimit = Number(body.spendLimit)
   const currency = body.currency
+  const category = body.category
 
   if (!nickname) {
     return NextResponse.json(
@@ -57,6 +58,21 @@ export async function POST(request: NextRequest) {
       { status: 400 },
     )
   }
+  if (currency !== merchant.currency) {
+    return NextResponse.json(
+      {
+        error: `Currency must match the merchant's currency (${merchant.currency}).`,
+      },
+      { status: 400 },
+    )
+  }
+
+  if (!CARD_CATEGORIES.includes(category)) {
+    return NextResponse.json(
+      { error: "Select a card category." },
+      { status: 400 },
+    )
+  }
 
   const number = generateCardNumber()
   const last4 = number.slice(-4)
@@ -67,6 +83,7 @@ export async function POST(request: NextRequest) {
     merchantId,
     spendLimit,
     currency,
+    category,
     last4,
     numberRef,
   })

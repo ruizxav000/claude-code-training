@@ -19,12 +19,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/Select"
-import { Currency } from "@/data/types"
+import { CARD_CATEGORIES, CARD_CATEGORY_LABELS } from "@/data/cardQueries"
+import { CardCategory, Currency } from "@/data/types"
 import { parseAmountToMinorUnits } from "@/lib/money"
 import { useRouter } from "next/navigation"
 import { useId, useState } from "react"
-
-const CURRENCIES: Currency[] = ["USD", "EUR", "GBP"]
 
 type MerchantOption = { id: string; name: string; currency: Currency }
 
@@ -42,6 +41,7 @@ export function IssueCardDialog({
   const [merchantId, setMerchantId] = useState("")
   const [limitInput, setLimitInput] = useState("")
   const [currency, setCurrency] = useState<Currency>("USD")
+  const [category, setCategory] = useState<CardCategory | "">("")
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [reveal, setReveal] = useState<{ number: string; last4: string } | null>(
@@ -53,6 +53,7 @@ export function IssueCardDialog({
     setMerchantId("")
     setLimitInput("")
     setCurrency("USD")
+    setCategory("")
     setError(null)
     setReveal(null)
   }
@@ -78,6 +79,10 @@ export function IssueCardDialog({
       setError("Enter a spend limit greater than zero.")
       return
     }
+    if (!category) {
+      setError("Select a card category.")
+      return
+    }
 
     setPending(true)
     try {
@@ -89,6 +94,7 @@ export function IssueCardDialog({
           merchantId,
           spendLimit,
           currency,
+          category,
         }),
       })
       const body = await response.json()
@@ -203,22 +209,34 @@ export function IssueCardDialog({
                   <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
                     Currency
                   </span>
-                  <Select
+                  <Input
+                    className="mt-1"
                     value={currency}
-                    onValueChange={(value) => setCurrency(value as Currency)}
-                  >
-                    <SelectTrigger className="mt-1 py-1.5" aria-label="Currency">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CURRENCIES.map((code) => (
-                        <SelectItem key={code} value={code}>
-                          {code}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    disabled
+                    aria-label="Currency, set by the selected merchant"
+                  />
                 </div>
+              </div>
+
+              <div>
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
+                  Category
+                </span>
+                <Select
+                  value={category}
+                  onValueChange={(value) => setCategory(value as CardCategory)}
+                >
+                  <SelectTrigger className="mt-1 py-1.5" aria-label="Category">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CARD_CATEGORIES.map((code) => (
+                      <SelectItem key={code} value={code}>
+                        {CARD_CATEGORY_LABELS[code]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               {error && (
